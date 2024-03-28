@@ -17,16 +17,45 @@ router.get('/:id', async (req, res) => {
   res.json(category);
 });
 
-router.post('/', (req, res) => {
-  // create a new category
+router.post('/', async (req, res) => {
+  const newCategory = await Category.create(req.body).catch((err) => {
+    res.status(400).json(err);
+  });
+  res.status(200).json(newCategory);
 });
 
-router.put('/:id', (req, res) => {
-  // update a category by its `id` value
+router.put('/:id', async (req, res) => {
+  const category = await Category.update(req.body, {
+    where:{
+      id: req.params.id
+    }
+  }).catch((err) =>{
+    res.json(err);
+  });
+
+  if(!category[0]){
+    res.status(404).json({message: "Category update failed"});
+    return;
+  }
+
+  res.status(200).json({message: "Category updated"});
 });
 
-router.delete('/:id', (req, res) => {
-  // delete a category by its `id` value
+router.delete('/:id', async (req, res) => {
+  const category = await Category.destroy({
+    where:{
+      id: req.params.id
+    }
+  }).catch((err) => {
+    res.json(err);
+  });
+
+  if(!category){
+    res.status(404).json({message: "category deletion failed"});
+    return;
+  }
+
+  res.status(200).json({message: "Category deleted"});
 });
 
 module.exports = router;
